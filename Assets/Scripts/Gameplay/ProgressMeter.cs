@@ -18,6 +18,7 @@ public class ProgressMeter : MonoBehaviour
 
     private void HandleProgressMeter()
     {
+        currentFill = GameManager.totalXP;
         float currentOffset = currentFill - minFill;
         float maxOffset = maxFill - minFill;
         float fillAmount = (float)currentFill / (float)maxFill;

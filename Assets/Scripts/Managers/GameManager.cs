@@ -7,5 +7,6 @@ public class GameManager
 {
     public static int totalXP;
     public static string username;
+    public static bool isPlaying = false;
 
 }

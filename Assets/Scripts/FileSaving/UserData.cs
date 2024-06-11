@@ -5,8 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public class UserData
 {
-    private int totalXP;
-    private string username;
+    public int totalXP;
+    public string username;
 
     public UserData()
     {

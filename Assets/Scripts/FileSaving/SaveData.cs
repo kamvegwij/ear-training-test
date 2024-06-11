@@ -13,6 +13,7 @@ public static class SaveData
         UserData user = new UserData();
 
         formatter.Serialize(stream, user);
+        Debug.Log("Save success!");
         stream.Close();
     }
 

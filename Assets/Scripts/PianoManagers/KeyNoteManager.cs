@@ -64,6 +64,11 @@ public class KeyNoteManager : MonoBehaviour
         transform.localScale = pressedKeyScale;
         if (!audioSource.isPlaying)
         {
+            if (GameManager.isPlaying)
+            {
+                GameManager.totalXP += 5;
+            }
+            
             audioSource.Play();
             GenerateWhiteNotePitch();
             GenerateBlackNotePitch();
