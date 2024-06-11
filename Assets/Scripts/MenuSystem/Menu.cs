@@ -8,32 +8,38 @@ using UnityEngine.UI;
 public class Menu : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI errorInfoText;
+
     [SerializeField] private Button continueBtn;
-    [SerializeField] private Button loadBtn;
+    [SerializeField] private Button settingsBtn;
+
+    [SerializeField] private GameObject settingsMenu;
+    [SerializeField] private GameObject buttonSection;
 
     private void Start()
     {
         continueBtn.onClick.AddListener(ContinueToGame);
-        loadBtn.onClick.AddListener(LoadGameData);
+        settingsBtn.onClick.AddListener(OpenSettings);
+        settingsMenu.SetActive(false);
+        buttonSection.SetActive(true);
     }
 
     private void ContinueToGame()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
     }
 
-    private void LoadGameData()
+    
+    private void OpenSettings()
     {
-        UserData progress = SaveData.LoadFromFile();
-        if (progress != null ) 
+        if (settingsMenu != null)
         {
-            errorInfoText.text = "Save file found, loading data..";
-            GameManager.totalXP = progress.totalXP;
-            GameManager.username = progress.username;
+            buttonSection.SetActive(false);
+            settingsMenu.SetActive(true);
         }
-        else
-        {
-            errorInfoText.text = "No save file found!";
-        }
+    }
+    public void CloseSettings()
+    {
+        buttonSection.SetActive(true);
+        settingsMenu.SetActive(false);
     }
 }
