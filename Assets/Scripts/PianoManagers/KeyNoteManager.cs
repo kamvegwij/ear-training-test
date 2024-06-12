@@ -9,9 +9,7 @@ public class KeyNoteManager : MonoBehaviour
 {
     [Range(1, 20000)]  //Creates a slider in the inspector
     public float frequency;
-
-    public float sampleRate = 44100;
-    public float waveLengthInSeconds = 2.0f;
+    public string noteType; //C4-C6 notes
 
     public TextMeshProUGUI freqText;
     public TextMeshProUGUI noteName;
@@ -23,9 +21,10 @@ public class KeyNoteManager : MonoBehaviour
 
     public AudioSource audioSource;
 
-    int timeIndex = 0;
+    private int timeIndex = 0;
+    private float sampleRate = 44100;
+    private float waveLengthInSeconds = 2.0f;
 
-    private string noteType; //C4-C6 notes
     private Vector3 pressedKeyScale = new Vector3(1f, .94f, 1f);
     private Vector3 originalKeyScale = new Vector3(1f, 1f, 1f);
 
