@@ -7,27 +7,39 @@ using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI errorInfoText;
-
     [SerializeField] private Button continueBtn;
     [SerializeField] private Button settingsBtn;
+    [SerializeField] private Button logoutBtn;
 
     [SerializeField] private GameObject settingsMenu;
     [SerializeField] private GameObject buttonSection;
 
-    private void Start()
+    private void OnEnable()
     {
         continueBtn.onClick.AddListener(ContinueToGame);
         settingsBtn.onClick.AddListener(OpenSettings);
+        logoutBtn.onClick.AddListener(Logout);
+    }
+    private void OnDisable()
+    {
+        continueBtn.onClick.RemoveListener(ContinueToGame);
+        settingsBtn.onClick.RemoveListener(OpenSettings);
+        logoutBtn.onClick.RemoveListener(Logout);
+    }
+    private void Start()
+    {
         settingsMenu.SetActive(false);
         buttonSection.SetActive(true);
     }
 
+    private void Logout()
+    {
+        SceneManager.LoadScene(0);
+    }
     private void ContinueToGame()
     {
         SceneManager.LoadScene(2);
     }
-
     
     private void OpenSettings()
     {

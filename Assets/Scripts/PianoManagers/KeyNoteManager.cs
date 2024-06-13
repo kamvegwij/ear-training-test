@@ -11,8 +11,8 @@ public class KeyNoteManager : MonoBehaviour
     public float frequency;
     public string noteType; //C4-C6 notes
 
-    public TextMeshProUGUI freqText;
-    public TextMeshProUGUI noteName;
+    //public TextMeshProUGUI freqText;
+    //public TextMeshProUGUI noteName;
 
     public Image image;
 
@@ -71,8 +71,8 @@ public class KeyNoteManager : MonoBehaviour
             audioSource.Play();
             GenerateWhiteNotePitch();
             GenerateBlackNotePitch();
-            freqText.text = frequency.ToString() + " hz";
-            noteName.text = noteType;
+            //freqText.text = frequency.ToString() + " hz";
+            //noteName.text = noteType;
             image.color = pressedColor;
         }
         else
@@ -89,7 +89,7 @@ public class KeyNoteManager : MonoBehaviour
     public void MoveFingerFromNote()
     {
         transform.localScale = originalKeyScale;
-        freqText.text = 0.ToString() + " hz";
+        //freqText.text = 0.ToString() + " hz";
         
     }
 

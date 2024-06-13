@@ -151,10 +151,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   frequency: 0
-  sampleRate: 44100
-  waveLengthInSeconds: 2
+  noteType: 
   freqText: {fileID: 0}
   noteName: {fileID: 0}
   image: {fileID: 3246086006471340821}
-  pressedColor: {r: 0.81886786, g: 0.7895122, b: 0.7895122, a: 1}
+  pressedColor: {r: 0.509434, g: 0.49117124, b: 0.49117124, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
+  audioSource: {fileID: 0}

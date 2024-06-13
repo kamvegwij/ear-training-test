@@ -9,6 +9,7 @@ public class ChallengeSpawner : MonoBehaviour
     [SerializeField] private Button tryButton;
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI statusText;
+    [SerializeField] private List<GameObject> pianoKeysList; 
 
     private float timerDuration = 15.0f;
     private bool testStarted = false;
@@ -48,6 +49,20 @@ public class ChallengeSpawner : MonoBehaviour
         {
             timerDuration = 15.0f;
             testStarted = true;
+
+            //randomly generate an audiosource and play a random note from the key note list.
+            switch (GameManager.gameMode)
+            {
+                case 0:
+                    Debug.Log("Spawn easy audio");
+                    break;
+                case 1:
+                    Debug.Log("Spawn tricky audio");
+                    break;
+                case 2:
+                    Debug.Log("Spawn advanced audio");
+                    break;
+            }
         }
         else
         {

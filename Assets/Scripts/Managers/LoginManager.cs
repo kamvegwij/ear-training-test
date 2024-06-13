@@ -13,10 +13,11 @@ public class LoginManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI errorInfoText;
     [SerializeField] private Button continueButton;
     [SerializeField] private Button createNewButton;
-
     [SerializeField] private Button facebookButton;
     [SerializeField] private Button twitterButton;
     [SerializeField] private Button websiteButton;
+
+    [SerializeField] private GameObject errorContainer;
 
     private UserData progress;
 
@@ -39,15 +40,17 @@ public class LoginManager : MonoBehaviour
     private void Start()
     {
         progress = SaveData.LoadFromFile();
-        errorInfoText.gameObject.SetActive(false);
+        errorContainer.SetActive(false);
+        Debug.Log("Username: " + progress.username);
+        Debug.Log("password: " + progress.password);
     }
     
     IEnumerator ShowErrorMessage(string txt)
     {
-        errorInfoText.gameObject.SetActive(true);
+        errorContainer.SetActive(true);
         errorInfoText.text = txt;
         yield return new WaitForSeconds(5f);
-        errorInfoText.gameObject.SetActive(false);
+        errorContainer.SetActive(false);
         errorInfoText.text = "";
     }
 
@@ -58,7 +61,10 @@ public class LoginManager : MonoBehaviour
         {
             GameManager.totalXP = progress.totalXP;
             GameManager.username = progress.username;
-            if (usernameInput.text == progress.username && passwordInput.text == "123")
+            GameManager.password = progress.password;
+            GameManager.gameMode = progress.gameMode;
+
+            if (usernameInput.text == progress.username && passwordInput.text == progress.password)
             {
                 SceneManager.LoadScene(1);
             }
@@ -77,6 +83,7 @@ public class LoginManager : MonoBehaviour
         if ( usernameInput.text != progress.username)
         {
             GameManager.username = usernameInput.text;
+            GameManager.password = passwordInput.text;
             SaveData.SaveToFile();
             StartCoroutine(ShowErrorMessage("Created successfully, you can now continue"));
         }

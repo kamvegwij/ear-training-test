@@ -14,6 +14,7 @@ public class ProgressMeter : MonoBehaviour
     private void Update()
     {
         HandleProgressMeter();
+        HandleGameMode();
     }
 
     private void HandleProgressMeter()
@@ -23,5 +24,23 @@ public class ProgressMeter : MonoBehaviour
         float maxOffset = maxFill - minFill;
         float fillAmount = (float)currentFill / (float)maxFill;
         barMaskObject.fillAmount = fillAmount;
+    }
+    private void HandleGameMode()
+    {
+        switch (currentFill)
+        {
+            case 0:
+                GameManager.gameMode = 0;
+                break;
+            case 50:
+                GameManager.gameMode = 1;
+                break;
+            case 75:
+                GameManager.gameMode = 2;
+                break;
+            default:
+                break;
+        }
+
     }
 }
