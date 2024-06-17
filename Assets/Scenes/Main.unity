@@ -2015,6 +2015,7 @@ MonoBehaviour:
   - {fileID: 953188818}
   - {fileID: 1601456992}
   testUI: {fileID: 1490942800}
+  randomNote: {fileID: 0}
 --- !u!82 &784720098
 AudioSource:
   m_ObjectHideFlags: 0
