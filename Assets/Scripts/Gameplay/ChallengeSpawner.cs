@@ -9,8 +9,10 @@ public class ChallengeSpawner : MonoBehaviour
     [SerializeField] private Button tryButton;
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI statusText;
-    [SerializeField] private List<GameObject> pianoKeysList; 
+    [SerializeField] private TextMeshProUGUI generatedSoundText;
+    [SerializeField] private List<GameObject> pianoKeysList;
 
+    private float sineFrequency;
     private float timerDuration = 15.0f;
     private bool testStarted = false;
 
@@ -43,6 +45,53 @@ public class ChallengeSpawner : MonoBehaviour
         timerText.text = Mathf.RoundToInt(timerDuration).ToString();
     }
 
+    private void GenerateAudio()
+    {
+        AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.volume = .2f;
+        audioSource.playOnAwake = false;
+        audioSource.loop = false;
+        audioSource.spatialBlend = 0; //force 2D sound
+        audioSource.panStereo = 1;
+
+        //pick a random note on the keyboard piano.
+        int keyBoardLen = pianoKeysList.Count;
+
+        KeyNoteManager randomNote = pianoKeysList[Random.Range(0, keyBoardLen)].GetComponent<KeyNoteManager>();
+        sineFrequency = randomNote.frequency;
+        generatedSoundText.text = randomNote.noteType + "\n" + randomNote.noteColor;
+
+        if (!audioSource.isPlaying)
+        {
+            //audioSource.Play();
+        }
+        
+    }
+    void OnAudioFilterRead(float[] data, int channels)
+    {
+        int timeIndex = 0;
+        float sampleRate = 44100;
+        float waveLengthInSeconds = 2.0f;
+        
+
+        for (int i = 0; i < data.Length; i += channels)
+        {
+            data[i] = CreateSine(timeIndex, sineFrequency, sampleRate);
+            timeIndex++;
+
+            //if timeIndex gets too big, reset it to 0
+            if (timeIndex >= (sampleRate * waveLengthInSeconds))
+            {
+                timeIndex = 0;
+            }
+        }
+    }
+
+    //Creates a sinewave
+    public float CreateSine(int timeIndex, float frequency, float sampleRate)
+    {
+        return Mathf.Sin(2 * Mathf.PI * timeIndex * frequency / sampleRate);
+    }
     private void StartTest()
     {
         if (!testStarted)
@@ -54,13 +103,13 @@ public class ChallengeSpawner : MonoBehaviour
             switch (GameManager.gameMode)
             {
                 case 0:
-                    Debug.Log("Spawn easy audio");
+                    GenerateAudio();
                     break;
                 case 1:
-                    Debug.Log("Spawn tricky audio");
+                    GenerateAudio();
                     break;
                 case 2:
-                    Debug.Log("Spawn advanced audio");
+                    GenerateAudio();
                     break;
             }
         }

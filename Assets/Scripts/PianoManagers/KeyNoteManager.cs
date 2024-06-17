@@ -10,7 +10,7 @@ public class KeyNoteManager : MonoBehaviour
     [Range(1, 20000)]  //Creates a slider in the inspector
     public float frequency;
     public string noteType; //C4-C6 notes
-
+    public string noteColor;
     //public TextMeshProUGUI freqText;
     //public TextMeshProUGUI noteName;
 
@@ -110,7 +110,7 @@ public class KeyNoteManager : MonoBehaviour
         switch (noteType)
         {
             case "C4":
-                frequency = 261.626f;
+                frequency = 261.626f; 
                 break;
             case "C5":
                 frequency = 523.251f;
