@@ -4,74 +4,78 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class ChallengeSpawner : MonoBehaviour
 {
     [SerializeField] private Button tryButton;
     [SerializeField] private TextMeshProUGUI timerText;
-    [SerializeField] private TextMeshProUGUI statusText;
     [SerializeField] private TextMeshProUGUI generatedSoundText;
     [SerializeField] private List<GameObject> pianoKeysList;
+    [SerializeField] private GameObject testUI;
+
+    private AudioSource audioSource;
+    public KeyNoteManager randomNote;
 
     private float sineFrequency;
-    private float timerDuration = 15.0f;
+    private float timerDuration = 5.0f;
     private bool testStarted = false;
 
-    private void Start()
+    private void OnEnable()
     {
         tryButton.onClick.AddListener(StartTest);
+    }
+    private void OnDisable()
+    {
+        tryButton.onClick.RemoveListener(StartTest);
+    }
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+    private void Start()
+    {
+        testUI.SetActive(false);
     }
     private void Update()
     {
         if (!testStarted)
         {
+            testUI.SetActive(false);
             GameManager.isPlaying = false;
             tryButton.interactable = true;
-            statusText.text = "Not Started";
         }
         else
         {
+            testUI.SetActive(true);
             GameManager.isPlaying = true;
             tryButton.interactable = false;
             if (timerDuration > 0.0f)
             {
                 timerDuration -= Time.deltaTime;
-                statusText.text = "Started";
             }
             else
             {
+                audioSource.Stop();
                 testStarted = false;
             }
         }
         timerText.text = Mathf.RoundToInt(timerDuration).ToString();
     }
-
-    private void GenerateAudio()
+    private void HandleRandomNote()
     {
-        AudioSource audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.volume = .2f;
-        audioSource.playOnAwake = false;
-        audioSource.loop = false;
-        audioSource.spatialBlend = 0; //force 2D sound
-        audioSource.panStereo = 1;
-
         //pick a random note on the keyboard piano.
         int keyBoardLen = pianoKeysList.Count;
-
-        KeyNoteManager randomNote = pianoKeysList[Random.Range(0, keyBoardLen)].GetComponent<KeyNoteManager>();
+        randomNote = pianoKeysList[Random.Range(0, keyBoardLen)].GetComponent<KeyNoteManager>();
         sineFrequency = randomNote.frequency;
-        generatedSoundText.text = randomNote.noteType + "\n" + randomNote.noteColor;
-
-        if (!audioSource.isPlaying)
-        {
-            //audioSource.Play();
-        }
-        
+        generatedSoundText.text = randomNote.noteType;
+        audioSource.Play();
     }
-    void OnAudioFilterRead(float[] data, int channels)
+
+    private void OnAudioFilterRead(float[] data, int channels)
     {
         int timeIndex = 0;
         float sampleRate = 44100;
-        float waveLengthInSeconds = 2.0f;
+        float waveLengthInSeconds = 1.0f;
         
 
         for (int i = 0; i < data.Length; i += channels)
@@ -79,15 +83,12 @@ public class ChallengeSpawner : MonoBehaviour
             data[i] = CreateSine(timeIndex, sineFrequency, sampleRate);
             timeIndex++;
 
-            //if timeIndex gets too big, reset it to 0
             if (timeIndex >= (sampleRate * waveLengthInSeconds))
             {
                 timeIndex = 0;
             }
         }
     }
-
-    //Creates a sinewave
     public float CreateSine(int timeIndex, float frequency, float sampleRate)
     {
         return Mathf.Sin(2 * Mathf.PI * timeIndex * frequency / sampleRate);
@@ -96,20 +97,19 @@ public class ChallengeSpawner : MonoBehaviour
     {
         if (!testStarted)
         {
-            timerDuration = 15.0f;
+            timerDuration = 5.0f;
             testStarted = true;
 
-            //randomly generate an audiosource and play a random note from the key note list.
             switch (GameManager.gameMode)
             {
                 case 0:
-                    GenerateAudio();
+                    HandleRandomNote();
                     break;
                 case 1:
-                    GenerateAudio();
+                    HandleRandomNote();
                     break;
                 case 2:
-                    GenerateAudio();
+                    HandleRandomNote();
                     break;
             }
         }

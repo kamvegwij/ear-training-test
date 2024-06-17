@@ -1,26 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using static TreeEditor.TreeEditorHelper;
 
 public class KeyNoteManager : MonoBehaviour
 {
-    [Range(1, 20000)]  //Creates a slider in the inspector
-    public float frequency;
-    public string noteType; //C4-C6 notes
+    
+    public string noteType;
     public string noteColor;
-    //public TextMeshProUGUI freqText;
-    //public TextMeshProUGUI noteName;
-
     public Image image;
-
     public Color pressedColor;
     public Color normalColor;
 
     public AudioSource audioSource;
+    [Range(1, 20000)] public float frequency;
 
+    private ChallengeSpawner spawner;
     private int timeIndex = 0;
     private float sampleRate = 44100;
     private float waveLengthInSeconds = 2.0f;
@@ -28,14 +26,12 @@ public class KeyNoteManager : MonoBehaviour
     private Vector3 pressedKeyScale = new Vector3(1f, .94f, 1f);
     private Vector3 originalKeyScale = new Vector3(1f, 1f, 1f);
 
-    
-
     private void Start()
     {
+        spawner = GameObject.Find("GameArea").GetComponent<ChallengeSpawner>();
         noteType = this.name;
         CreateAudioSource();
         normalColor = image.color;
-
     }
     void OnAudioFilterRead(float[] data, int channels)
     {
@@ -44,7 +40,6 @@ public class KeyNoteManager : MonoBehaviour
             data[i] = CreateSine(timeIndex, frequency, sampleRate);
             timeIndex++;
 
-            //if timeIndex gets too big, reset it to 0
             if (timeIndex >= (sampleRate * waveLengthInSeconds))
             {
                 timeIndex = 0;
@@ -52,7 +47,6 @@ public class KeyNoteManager : MonoBehaviour
         }
     }
 
-    //Creates a sinewave
     public float CreateSine(int timeIndex, float frequency, float sampleRate)
     {
         return Mathf.Sin(2 * Mathf.PI * timeIndex * frequency / sampleRate);
@@ -63,21 +57,30 @@ public class KeyNoteManager : MonoBehaviour
         transform.localScale = pressedKeyScale;
         if (!audioSource.isPlaying)
         {
-            if (GameManager.isPlaying)
+            if (GameManager.isPlaying && noteType == spawner.randomNote.noteType)
             {
-                GameManager.totalXP += 5;
+                HandleXP(5);
+                Debug.Log("Correct Note");
             }
-            
-            audioSource.Play();
-            GenerateWhiteNotePitch();
-            GenerateBlackNotePitch();
-            //freqText.text = frequency.ToString() + " hz";
-            //noteName.text = noteType;
+            else
+            {
+                HandleXP(-2);
+                Debug.Log("Incorrect Note");
+            }
             image.color = pressedColor;
+            audioSource.Play();
         }
         else
         {
             return;
+        }
+    }
+    private void HandleXP(int n) 
+    {
+        int nextXP = GameManager.totalXP + n;
+        if (nextXP > 0) 
+        {
+            GameManager.totalXP += n;
         }
     }
     public void ReleasedNote()
@@ -89,24 +92,22 @@ public class KeyNoteManager : MonoBehaviour
     public void MoveFingerFromNote()
     {
         transform.localScale = originalKeyScale;
-        //freqText.text = 0.ToString() + " hz";
-        
     }
 
     private void CreateAudioSource()
     {
-        frequency = 420;
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
-        //audioSource.spatialBlend = 0; //force 2D sound
-        audioSource.Stop(); //avoids audiosource from starting to play automatically
-        audioSource.volume = 1;
         audioSource.loop = false;
-        //audioSource.panStereo = 1;
+        audioSource.spatialBlend = 0;
+        audioSource.Stop();
+        audioSource.volume = 1;
+        audioSource.panStereo = 1;
+        GenerateWhiteNotePitch();
+        GenerateBlackNotePitch();
     }
     private void GenerateWhiteNotePitch()
     {
-        //create a list or 2d array to store note with it's corresponding freq-> {"C5", 523.251f}
         switch (noteType)
         {
             case "C4":
@@ -183,7 +184,6 @@ public class KeyNoteManager : MonoBehaviour
     }
     private void GenerateBlackNotePitch()
     {
-        //TODO: make this mechanic simpler -> attach frequencies to individually generated notes.
         switch (noteType)
         {
             case "C#4":

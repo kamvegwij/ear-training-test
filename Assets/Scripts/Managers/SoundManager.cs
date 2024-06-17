@@ -19,15 +19,22 @@ public class SoundManager : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
     }
+    private void OnEnable()
+    {
+        volumeBar.onValueChanged.AddListener(val => ToggleVolume());
+        cutoffBar.onValueChanged.AddListener(val => ToggleCutoff());
+        octaveBar.onValueChanged.AddListener(val => ToggleOctave());
+    }
+    private void OnDisable()
+    {
+        volumeBar.onValueChanged.RemoveListener(val => ToggleVolume());
+        cutoffBar.onValueChanged.RemoveListener(val => ToggleCutoff());
+        octaveBar.onValueChanged.RemoveListener(val => ToggleOctave());
+    }
     private void Start()
     {
         volumeBar.value = audioSource.volume;
         octaveBar.value = audioSource.pitch;
-
-        volumeBar.onValueChanged.AddListener(val => ToggleVolume());
-        cutoffBar.onValueChanged.AddListener(val => ToggleCutoff());
-        octaveBar.onValueChanged.AddListener(val => ToggleOctave());
-
     }
 
     private void ToggleVolume()
