@@ -57,15 +57,18 @@ public class KeyNoteManager : MonoBehaviour
         transform.localScale = pressedKeyScale;
         if (!audioSource.isPlaying)
         {
-            if (GameManager.isPlaying && noteType == spawner.randomNote.noteType)
+            if (GameManager.isPlaying)
             {
-                HandleXP(5);
-                Debug.Log("Correct Note");
-            }
-            else
-            {
-                HandleXP(-2);
-                Debug.Log("Incorrect Note");
+                if (noteType == spawner.randomNote.noteType)
+                {
+                    HandleXP(5);
+                    Debug.Log("Correct Note");
+                }
+                else
+                {
+                    HandleXP(-2);
+                    Debug.Log("Incorrect Note");
+                }
             }
             image.color = pressedColor;
             audioSource.Play();
