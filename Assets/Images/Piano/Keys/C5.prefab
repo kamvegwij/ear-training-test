@@ -150,11 +150,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6772692930015e54ba1140cdb77228cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frequency: 0
   noteType: 
-  freqText: {fileID: 0}
-  noteName: {fileID: 0}
+  noteColor: 
   image: {fileID: 3246086006471340821}
   pressedColor: {r: 0.509434, g: 0.49117124, b: 0.49117124, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   audioSource: {fileID: 0}
+  frequency: 0
