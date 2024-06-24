@@ -1,25 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static TreeEditor.TreeEditorHelper;
-
 public class PressedKey : MonoBehaviour
 {
-    [Range(1, 20000)]  //Creates a slider in the inspector
-    public float frequency;
+    [SerializeField] private float frequency;
+    [SerializeField] private float sampleRate = 44100;
+    [SerializeField] private float waveLengthInSeconds = 2.0f;
+    [SerializeField] private float intensity = 0.5f; //Amplitude.
 
-    public float sampleRate = 44100;
-    public float waveLengthInSeconds = 2.0f;
-
-    AudioSource audioSource;
-
-    int timeIndex = 0;
-
+    private int timeIndex = 0;
     private string noteType; //C4-C6 notes
     private Vector3 pressedKeyScale = new Vector3(1f, .94f, 1f);
     private Vector3 originalKeyScale = new Vector3(1f, 1f, 1f);
 
-    
+    private AudioSource audioSource;
 
     private void Start()
     {
@@ -30,7 +24,7 @@ public class PressedKey : MonoBehaviour
     {
         for (int i = 0; i < data.Length; i += channels)
         {
-            data[i] = CreateSine(timeIndex, frequency, sampleRate);
+            data[i] = MakeNoise(timeIndex, frequency, sampleRate);
             timeIndex++;
 
             //if timeIndex gets too big, reset it to 0
@@ -41,10 +35,12 @@ public class PressedKey : MonoBehaviour
         }
     }
 
-    //Creates a sinewave
-    public float CreateSine(int timeIndex, float frequency, float sampleRate)
+    //Make Noise
+    public float MakeNoise(int timeIndex, float frequency, float sampleRate)
     {
-        return Mathf.Sin(2 * Mathf.PI * timeIndex * frequency / sampleRate);
+        float angVelocity = 2 * Mathf.PI * timeIndex * frequency; //sine waves don't take hz, convert to angular velo.
+
+        return intensity * Mathf.Sin( (angVelocity) / sampleRate); //sine wave
     }
 
     public void PressedNote()

@@ -4,7 +4,6 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using static TreeEditor.TreeEditorHelper;
 
 public class KeyNoteManager : MonoBehaviour
 {
@@ -16,7 +15,7 @@ public class KeyNoteManager : MonoBehaviour
     public Color normalColor;
 
     public AudioSource audioSource;
-    [Range(1, 20000)] public float frequency;
+    public float frequency;
 
     private ChallengeSpawner spawner;
     private int timeIndex = 0;
