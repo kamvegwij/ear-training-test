@@ -19,7 +19,8 @@ public class ChallengeSpawner : MonoBehaviour
     private float sineFrequency;
     private float timerDuration = 5.0f;
     private bool testStarted = false;
-
+    private bool isActive = false;
+    GameManager gameManager;
     private void OnEnable()
     {
         tryButton.onClick.AddListener(StartTest);
@@ -30,6 +31,7 @@ public class ChallengeSpawner : MonoBehaviour
     }
     private void Awake()
     {
+        gameManager = new GameManager();
         audioSource = GetComponent<AudioSource>();
     }
     private void Start()
@@ -41,14 +43,15 @@ public class ChallengeSpawner : MonoBehaviour
         if (!testStarted)
         {
             testUI.SetActive(false);
-            GameManager.isPlaying = false;
+            gameManager.isPlaying = false;
             tryButton.interactable = true;
         }
         else
         {
             testUI.SetActive(true);
-            GameManager.isPlaying = true;
+            gameManager.isPlaying = true;
             tryButton.interactable = false;
+
             if (timerDuration > 0.0f)
             {
                 timerDuration -= Time.deltaTime;
@@ -76,7 +79,6 @@ public class ChallengeSpawner : MonoBehaviour
         int timeIndex = 0;
         float sampleRate = 44100;
         float waveLengthInSeconds = 1.0f;
-        
 
         for (int i = 0; i < data.Length; i += channels)
         {
@@ -93,29 +95,27 @@ public class ChallengeSpawner : MonoBehaviour
     {
         return Mathf.Sin(2 * Mathf.PI * timeIndex * frequency / sampleRate);
     }
+    private void CheckGameMode()
+    {
+        switch (gameManager.gameMode)
+        {
+            case 0:
+                HandleRandomNote();
+                break;
+            case 1:
+                HandleRandomNote();
+                break;
+            case 2:
+                HandleRandomNote();
+                break;
+        }
+    }
     private void StartTest()
     {
-        if (!testStarted)
-        {
-            timerDuration = 5.0f;
-            testStarted = true;
+        if (testStarted) return;
 
-            switch (GameManager.gameMode)
-            {
-                case 0:
-                    HandleRandomNote();
-                    break;
-                case 1:
-                    HandleRandomNote();
-                    break;
-                case 2:
-                    HandleRandomNote();
-                    break;
-            }
-        }
-        else
-        {
-            Debug.Log("Timer Already Started!");
-        }
+        timerDuration = 5.0f;
+        testStarted = true;
+        CheckGameMode();
     }
 }

@@ -19,8 +19,8 @@ public class LoginManager : MonoBehaviour
 
     [SerializeField] private GameObject errorContainer;
 
-    private UserData progress;
-
+    UserData progress;
+    GameManager gameManager;
     private void OnEnable()
     {
         continueButton.onClick.AddListener(LoadGameData);
@@ -37,12 +37,13 @@ public class LoginManager : MonoBehaviour
         twitterButton.onClick.RemoveListener(OpenTwitter);
         websiteButton.onClick.RemoveListener(OpenWebsite);
     }
+
     private void Start()
     {
+        gameManager = new GameManager();
+
         progress = SaveData.LoadFromFile();
         errorContainer.SetActive(false);
-        Debug.Log("Username: " + progress.username);
-        Debug.Log("password: " + progress.password);
     }
     
     IEnumerator ShowErrorMessage(string txt)
@@ -59,10 +60,10 @@ public class LoginManager : MonoBehaviour
         
         if (progress != null)
         {
-            GameManager.totalXP = progress.totalXP;
-            GameManager.username = progress.username;
-            GameManager.password = progress.password;
-            GameManager.gameMode = progress.gameMode;
+            gameManager.totalXP = progress.totalXP;
+            gameManager.username = progress.username;
+            gameManager.password = progress.password;
+            gameManager.gameMode = progress.gameMode;
 
             if (usernameInput.text == progress.username && passwordInput.text == progress.password)
             {
@@ -82,8 +83,8 @@ public class LoginManager : MonoBehaviour
     {
         if ( usernameInput.text != progress.username)
         {
-            GameManager.username = usernameInput.text;
-            GameManager.password = passwordInput.text;
+            gameManager.username = usernameInput.text;
+            gameManager.password = passwordInput.text;
             SaveData.SaveToFile();
             StartCoroutine(ShowErrorMessage("Created successfully, you can now continue"));
         }
@@ -96,15 +97,18 @@ public class LoginManager : MonoBehaviour
 
     private void OpenTwitter()
     {
-        Debug.Log("Opening Twitter...");
+        LogMessages("Opening Twitter...");
     }
     private void OpenFacebook()
     {
-        Debug.Log("Opening Facebook...");
+        LogMessages("Opening Facebook...");
     }
     private void OpenWebsite()
     {
-        Debug.Log("Opening Website...");
+        LogMessages("Opening Website...");
     }
-    
+    private void LogMessages(string message)
+    {
+        Debug.Log(message);
+    }
 }

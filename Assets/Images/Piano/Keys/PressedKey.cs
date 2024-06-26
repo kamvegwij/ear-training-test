@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 public class PressedKey : MonoBehaviour
 {
@@ -38,7 +36,7 @@ public class PressedKey : MonoBehaviour
     //Make Noise
     public float MakeNoise(int timeIndex, float frequency, float sampleRate)
     {
-        float angVelocity = 2 * Mathf.PI * timeIndex * frequency; //sine waves don't take hz, convert to angular velo.
+        float angVelocity = 2*Mathf.PI * timeIndex * frequency; //sine waves don't take hz, convert to angular velo.
 
         return intensity * Mathf.Sin( (angVelocity) / sampleRate); //sine wave
     }
@@ -46,14 +44,11 @@ public class PressedKey : MonoBehaviour
     public void PressedNote()
     {
         transform.localScale = pressedKeyScale;
-        //Debug.Log("Clicked note: " + noteType);
         PlayNote();
     }
     public void ReleasedNote()
     {
-        //Debug.Log("Released note: " + noteType);
         StopNote();
-
     }
     public void MoveFingerFromNote()
     {

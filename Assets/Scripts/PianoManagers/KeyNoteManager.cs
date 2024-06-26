@@ -1,119 +1,82 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class KeyNoteManager : MonoBehaviour
-{
-    
+{    
     public string noteType;
     public string noteColor;
     public Image image;
     public Color pressedColor;
     public Color normalColor;
-
-    public AudioSource audioSource;
+    
     public float frequency;
-
-    private ChallengeSpawner spawner;
-    private int timeIndex = 0;
-    private float sampleRate = 44100;
-    private float waveLengthInSeconds = 2.0f;
 
     private Vector3 pressedKeyScale = new Vector3(1f, .94f, 1f);
     private Vector3 originalKeyScale = new Vector3(1f, 1f, 1f);
 
+    private ChallengeSpawner spawner;
+    private AudioSource audioSource;
+
+    ProceduralAudio proceduralAudio;
+    GameManager gameManager;
     private void Start()
     {
+        gameManager = new GameManager();
+        proceduralAudio = new ProceduralAudio(0.5f, 44100.0f, 2.0f);
+
         spawner = GameObject.Find("GameArea").GetComponent<ChallengeSpawner>();
         noteType = this.name;
-        CreateAudioSource();
         normalColor = image.color;
+
+        GenerateWhiteNotePitch();
+        GenerateBlackNotePitch();
+        CustomAudioSource();
     }
     void OnAudioFilterRead(float[] data, int channels)
     {
-        for (int i = 0; i < data.Length; i += channels)
-        {
-            data[i] = CreateSine(timeIndex, frequency, sampleRate);
-            timeIndex++;
-
-            if (timeIndex >= (sampleRate * waveLengthInSeconds))
-            {
-                timeIndex = 0;
-            }
-        }
+        proceduralAudio.GenerateAudioReader(data, channels);
     }
-
-    public float CreateSine(int timeIndex, float frequency, float sampleRate)
-    {
-        return Mathf.Sin(2 * Mathf.PI * timeIndex * frequency / sampleRate);
-    }
-
-    public void PressedNote()
-    {
-        transform.localScale = pressedKeyScale;
-        if (!audioSource.isPlaying)
-        {
-            if (GameManager.isPlaying)
-            {
-                if (noteType == spawner.randomNote.noteType)
-                {
-                    HandleXP(5);
-                    Debug.Log("Correct Note");
-                }
-                else
-                {
-                    HandleXP(-2);
-                    Debug.Log("Incorrect Note");
-                }
-            }
-            image.color = pressedColor;
-            audioSource.Play();
-        }
-        else
-        {
-            return;
-        }
-    }
-    private void HandleXP(int n) 
-    {
-        int nextXP = GameManager.totalXP + n;
-        if (nextXP > 0) 
-        {
-            GameManager.totalXP += n;
-        }
-    }
-    public void ReleasedNote()
-    {
-        audioSource.Stop();
-        image.color = normalColor;
-
-    }
-    public void MoveFingerFromNote()
-    {
-        transform.localScale = originalKeyScale;
-    }
-
-    private void CreateAudioSource()
+    public void CustomAudioSource()
     {
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
         audioSource.loop = false;
         audioSource.spatialBlend = 0;
-        audioSource.Stop();
         audioSource.volume = 1;
         audioSource.panStereo = 1;
-        GenerateWhiteNotePitch();
-        GenerateBlackNotePitch();
+        audioSource.Stop();
+    }
+    public void PressedNote()
+    {
+        LogSelection(proceduralAudio.frequency.ToString(), 0);
+
+        if (audioSource.isPlaying) return;
+        transform.localScale = pressedKeyScale;
+
+        if (gameManager.isPlaying)
+        {
+            HandleChallengeProgress();
+        }
+        image.color = pressedColor;
+        proceduralAudio.frequency = frequency;
+        audioSource.Play();
+    }
+
+    public void ReleasedNote()
+    {
+        audioSource.Stop();
+        image.color = normalColor;
+    }
+    public void MoveFingerFromNote()
+    {
+        transform.localScale = originalKeyScale;
     }
     private void GenerateWhiteNotePitch()
     {
         switch (noteType)
         {
             case "C4":
-                frequency = 261.626f; 
+                frequency = 261.626f;
                 break;
             case "C5":
                 frequency = 523.251f;
@@ -184,6 +147,7 @@ public class KeyNoteManager : MonoBehaviour
 
         }
     }
+
     private void GenerateBlackNotePitch()
     {
         switch (noteType)
@@ -239,4 +203,22 @@ public class KeyNoteManager : MonoBehaviour
                 break;
         }
     }
+    private void HandleChallengeProgress()
+    {
+        if (noteType == spawner.randomNote.noteType)
+        {
+            LogSelection("Correct selection", 5);
+        }
+        else
+        {
+            LogSelection("Incorrect selection", -3);
+        }
+    }
+
+    public void LogSelection(string outputMessage, int totalPoints)
+    {
+        Debug.Log(outputMessage);
+        gameManager.totalXP += totalPoints;
+    }
+
 }

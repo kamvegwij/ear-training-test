@@ -12,9 +12,11 @@ public class UserData
 
     public UserData()
     {
-        totalXP = GameManager.totalXP;
-        username = GameManager.username;
-        gameMode = GameManager.gameMode;
-        password= GameManager.password;
+        GameManager gameManager = new GameManager();
+
+        totalXP = gameManager.totalXP;
+        username = gameManager.username;
+        gameMode = gameManager.gameMode;
+        password= gameManager.password;
     }
 }

@@ -5,9 +5,18 @@ using UnityEngine;
 [System.Serializable]
 public class GameManager
 {
-    public static int totalXP;
-    public static string username;
-    public static string password;
-    public static bool isPlaying = false;
-    public static int gameMode = 0;
+    public GameManager()
+    {
+        totalXP = this.totalXP;
+        username = this.username;
+        password = this.password;
+        isPlaying = this.isPlaying;
+        gameMode = this.gameMode;
+    }
+
+    public int totalXP { get; set; }
+    public string username { get; set; }
+    public string password { get; set; }
+    public bool isPlaying { get; set; }
+    public int gameMode { get; set; }
 }

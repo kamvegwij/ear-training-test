@@ -11,6 +11,11 @@ public class ProgressMeter : MonoBehaviour
 
     [SerializeField] private Image barMaskObject;
 
+    GameManager gameManager;
+    private void Awake()
+    {
+        gameManager = new GameManager();
+    }
     private void Update()
     {
         HandleProgressMeter();
@@ -19,7 +24,7 @@ public class ProgressMeter : MonoBehaviour
 
     private void HandleProgressMeter()
     {
-        currentFill = GameManager.totalXP;
+        currentFill = gameManager.totalXP;
         float currentOffset = currentFill - minFill;
         float maxOffset = maxFill - minFill;
         float fillAmount = (float)currentFill / (float)maxFill;
@@ -30,13 +35,13 @@ public class ProgressMeter : MonoBehaviour
         switch (currentFill)
         {
             case 0:
-                GameManager.gameMode = 0;
+                gameManager.gameMode = 0;
                 break;
             case 50:
-                GameManager.gameMode = 1;
+                gameManager.gameMode = 1;
                 break;
             case 75:
-                GameManager.gameMode = 2;
+                gameManager.gameMode = 2;
                 break;
             default:
                 break;
