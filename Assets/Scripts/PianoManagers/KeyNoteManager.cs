@@ -1,76 +1,96 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class KeyNoteManager : MonoBehaviour
 {    
     public string noteType;
     public string noteColor;
-    public Image image;
-    public Color pressedColor;
-    public Color normalColor;
     
-    public float frequency;
+    [SerializeField] private float frequency;
+    [SerializeField, Range(0,1)] private float amplitude = 0.5f;
+    [SerializeField] private Color pressedColor;
+    [SerializeField] private Color normalColor;
+
+    private double _phase;
+    private int _sampleRate;
+    private bool isPressed = false;
 
     private Vector3 pressedKeyScale = new Vector3(1f, .94f, 1f);
     private Vector3 originalKeyScale = new Vector3(1f, 1f, 1f);
 
+    private Image image;
     private ChallengeSpawner spawner;
     private AudioSource audioSource;
 
     ProceduralAudio proceduralAudio;
     GameManager gameManager;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+        image = GetComponent<Image>();
+        _sampleRate = AudioSettings.outputSampleRate;
+    }
     private void Start()
     {
         gameManager = new GameManager();
-        proceduralAudio = new ProceduralAudio(0.5f, 44100.0f, 2.0f);
-
         spawner = GameObject.Find("GameArea").GetComponent<ChallengeSpawner>();
-        noteType = this.name;
-        normalColor = image.color;
-
-        GenerateWhiteNotePitch();
-        GenerateBlackNotePitch();
-        CustomAudioSource();
+        AddNoteProperties();
+    }
+    private void Update()
+    {
+        if (isPressed && gameManager.isPlaying)
+        {
+            Debug.Log("Pressed key: " + noteType);
+            HandleChallengeProgress();
+        }
     }
     void OnAudioFilterRead(float[] data, int channels)
     {
-        proceduralAudio.GenerateAudioReader(data, channels);
+        double phaseIncrement = frequency / _sampleRate;
+
+        for (int sample = 0; sample < data.Length; sample += channels) 
+        {
+            float val = amplitude * Mathf.Sin((float)_phase * 2*Mathf.PI);
+            _phase = (_phase + phaseIncrement) % 1;
+            for (int channel = 0; channel < channels; channel++)
+            {
+                data[sample + channel] = val;
+            }
+        }
     }
-    public void CustomAudioSource()
-    {
-        audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.playOnAwake = false;
-        audioSource.loop = false;
-        audioSource.spatialBlend = 0;
-        audioSource.volume = 1;
-        audioSource.panStereo = 1;
-        audioSource.Stop();
-    }
+
     public void PressedNote()
     {
-        LogSelection(proceduralAudio.frequency.ToString(), 0);
-
-        if (audioSource.isPlaying) return;
-        transform.localScale = pressedKeyScale;
-
-        if (gameManager.isPlaying)
-        {
-            HandleChallengeProgress();
-        }
-        image.color = pressedColor;
-        proceduralAudio.frequency = frequency;
+        //note make sure the event trigger is OnPointerDown.
+        HandleNoteEventState(true, pressedColor, pressedKeyScale);
         audioSource.Play();
     }
-
     public void ReleasedNote()
     {
+        HandleNoteEventState(false, normalColor, originalKeyScale);
         audioSource.Stop();
-        image.color = normalColor;
     }
-    public void MoveFingerFromNote()
+    private void HandleNoteEventState(bool pressed, Color noteColor, Vector3 size)
     {
-        transform.localScale = originalKeyScale;
+        isPressed = pressed;
+        image.color = noteColor;
+        transform.localScale = size;
     }
+    private void AddNoteProperties()
+    {
+        noteType = this.name;
+        normalColor = image.color;
+        GenerateWhiteNotePitch();
+        GenerateBlackNotePitch();
+
+        //Audio Source toggle:
+        audioSource.Stop();
+        audioSource.playOnAwake = false;
+        audioSource.loop = false;
+    }
+
     private void GenerateWhiteNotePitch()
     {
         switch (noteType)

@@ -106,22 +106,6 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-  - eventID: 1
-    callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 6715457077929202763}
-          m_TargetAssemblyTypeName: KeyNoteManager, Assembly-CSharp
-          m_MethodName: MoveFingerFromNote
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
   - eventID: 2
     callback:
       m_PersistentCalls:
@@ -151,9 +135,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noteType: 
-  noteColor: 
-  image: {fileID: 3246086006471340821}
-  pressedColor: {r: 0.509434, g: 0.49117124, b: 0.49117124, a: 1}
+  noteColor: white
+  frequency: 0
+  amplitude: 0.5
+  pressedColor: {r: 0.5019608, g: 0.5568628, b: 0.60784316, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   audioSource: {fileID: 0}
-  frequency: 0

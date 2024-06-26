@@ -69,7 +69,7 @@ public class ChallengeSpawner : MonoBehaviour
         //pick a random note on the keyboard piano.
         int keyBoardLen = pianoKeysList.Count;
         randomNote = pianoKeysList[Random.Range(0, keyBoardLen)].GetComponent<KeyNoteManager>();
-        sineFrequency = randomNote.frequency;
+        //sineFrequency = randomNote.frequency;
         generatedSoundText.text = randomNote.noteType;
         audioSource.Play();
     }
