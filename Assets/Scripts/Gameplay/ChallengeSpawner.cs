@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static TreeEditor.TreeEditorHelper;
 
 [RequireComponent(typeof(AudioSource))]
 public class ChallengeSpawner : MonoBehaviour
@@ -14,25 +15,27 @@ public class ChallengeSpawner : MonoBehaviour
     [SerializeField] private GameObject testUI;
 
     private AudioSource audioSource;
-    public KeyNoteManager randomNote;
 
-    private float sineFrequency;
     private float timerDuration = 5.0f;
     private bool testStarted = false;
-    private bool isActive = false;
-    GameManager gameManager;
+
+    ProceduralAudio generatedAudio;
     private void OnEnable()
     {
         tryButton.onClick.AddListener(StartTest);
     }
     private void OnDisable()
     {
-        tryButton.onClick.RemoveListener(StartTest);
+        tryButton.onClick.RemoveAllListeners();
     }
     private void Awake()
     {
-        gameManager = new GameManager();
+        generatedAudio = new ProceduralAudio(AudioSettings.outputSampleRate, 0.5f);
         audioSource = GetComponent<AudioSource>();
+
+        audioSource.Stop();
+        audioSource.playOnAwake = false;
+        audioSource.loop = true;
     }
     private void Start()
     {
@@ -42,15 +45,11 @@ public class ChallengeSpawner : MonoBehaviour
     {
         if (!testStarted)
         {
-            testUI.SetActive(false);
-            gameManager.isPlaying = false;
-            tryButton.interactable = true;
+            ToggleTestGameState(false, false, true);
         }
         else
         {
-            testUI.SetActive(true);
-            gameManager.isPlaying = true;
-            tryButton.interactable = false;
+            ToggleTestGameState(true, true, false);
 
             if (timerDuration > 0.0f)
             {
@@ -60,62 +59,65 @@ public class ChallengeSpawner : MonoBehaviour
             {
                 audioSource.Stop();
                 testStarted = false;
+                MessageLog.LogMessage(GameManager.totalXP.ToString());
             }
         }
         timerText.text = Mathf.RoundToInt(timerDuration).ToString();
     }
-    private void HandleRandomNote()
+    private void ToggleTestGameState(bool testState, bool isPlaying, bool buttonInteract)
     {
-        //pick a random note on the keyboard piano.
+        testUI.SetActive(testState);
+        GameManager.SetGamePlayingState(isPlaying);
+        tryButton.interactable = buttonInteract;
+    }
+    public KeyNoteManager GetRandomNote()
+    {
+        //return a piano note object.
         int keyBoardLen = pianoKeysList.Count;
-        randomNote = pianoKeysList[Random.Range(0, keyBoardLen)].GetComponent<KeyNoteManager>();
-        //sineFrequency = randomNote.frequency;
-        generatedSoundText.text = randomNote.noteType;
-        audioSource.Play();
+        KeyNoteManager randomNote = pianoKeysList[Random.Range(0, keyBoardLen)].GetComponent<KeyNoteManager>();
+        generatedAudio.frequency = randomNote.currentFrequency;
+
+        return randomNote;
     }
 
-    private void OnAudioFilterRead(float[] data, int channels)
+    void OnAudioFilterRead(float[] data, int channels)
     {
-        int timeIndex = 0;
-        float sampleRate = 44100;
-        float waveLengthInSeconds = 1.0f;
+        double phaseIncrement = generatedAudio.frequency / generatedAudio.sampleRate;
 
-        for (int i = 0; i < data.Length; i += channels)
+        for (int sample = 0; sample < data.Length; sample += channels)
         {
-            data[i] = CreateSine(timeIndex, sineFrequency, sampleRate);
-            timeIndex++;
-
-            if (timeIndex >= (sampleRate * waveLengthInSeconds))
+            float val = generatedAudio.amplitude * Mathf.Sin((float)generatedAudio.phase * 2 * Mathf.PI);
+            generatedAudio.phase = (generatedAudio.phase + phaseIncrement) % 1;
+            for (int channel = 0; channel < channels; channel++)
             {
-                timeIndex = 0;
+                data[sample + channel] = val;
             }
         }
     }
-    public float CreateSine(int timeIndex, float frequency, float sampleRate)
+    private void PlayChallengeAudio()
     {
-        return Mathf.Sin(2 * Mathf.PI * timeIndex * frequency / sampleRate);
+        generatedSoundText.text = GetRandomNote().noteType;
+        audioSource.Play();
     }
-    private void CheckGameMode()
-    {
-        switch (gameManager.gameMode)
-        {
-            case 0:
-                HandleRandomNote();
-                break;
-            case 1:
-                HandleRandomNote();
-                break;
-            case 2:
-                HandleRandomNote();
-                break;
-        }
-    }
+
     private void StartTest()
     {
         if (testStarted) return;
 
         timerDuration = 5.0f;
         testStarted = true;
-        CheckGameMode();
+
+        switch (GameManager.gameMode)
+        {
+            case 0:
+                PlayChallengeAudio();
+                break;
+            case 1:
+                PlayChallengeAudio();
+                break;
+            case 2:
+                PlayChallengeAudio();
+                break;
+        }
     }
 }

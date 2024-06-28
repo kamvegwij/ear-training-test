@@ -1,22 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 [System.Serializable]
-public class GameManager
+public static class GameManager
 {
-    public GameManager()
-    {
-        totalXP = this.totalXP;
-        username = this.username;
-        password = this.password;
-        isPlaying = this.isPlaying;
-        gameMode = this.gameMode;
-    }
 
-    public int totalXP { get; set; }
-    public string username { get; set; }
-    public string password { get; set; }
-    public bool isPlaying { get; set; }
-    public int gameMode { get; set; }
+    public static int totalXP { get; set; }
+    public static string username { get; set; }
+    public static string password { get; set; }
+    public static bool isPlaying { get; set; }
+    public static int gameMode { get; set; }
+
+    public static void ToggleXP(int val)
+    {
+        totalXP += val;
+    }
+    public static void SwitchGameMode(int val)
+    {
+        gameMode = val;
+    }
+    public static void SetGamePlayingState(bool state)
+    {
+        isPlaying = state;
+    }
 }

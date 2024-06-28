@@ -9,7 +9,6 @@ public class UserAccountDetails : MonoBehaviour
 
     private void Start()
     {
-        GameManager gameManager = new GameManager();
-        usernameText.text = gameManager.username;
+        usernameText.text = GameManager.username;
     }
 }

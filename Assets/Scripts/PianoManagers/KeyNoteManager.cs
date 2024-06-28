@@ -6,14 +6,11 @@ public class KeyNoteManager : MonoBehaviour
 {    
     public string noteType;
     public string noteColor;
-    
-    [SerializeField] private float frequency;
-    [SerializeField, Range(0,1)] private float amplitude = 0.5f;
+    public float currentFrequency;
     [SerializeField] private Color pressedColor;
     [SerializeField] private Color normalColor;
 
-    private double _phase;
-    private int _sampleRate;
+
     private bool isPressed = false;
 
     private Vector3 pressedKeyScale = new Vector3(1f, .94f, 1f);
@@ -23,37 +20,28 @@ public class KeyNoteManager : MonoBehaviour
     private ChallengeSpawner spawner;
     private AudioSource audioSource;
 
-    ProceduralAudio proceduralAudio;
-    GameManager gameManager;
+    ProceduralAudio generatedAudio;
 
     private void Awake()
     {
+        generatedAudio = new ProceduralAudio(AudioSettings.outputSampleRate, 0.5f);
         audioSource = GetComponent<AudioSource>();
         image = GetComponent<Image>();
-        _sampleRate = AudioSettings.outputSampleRate;
+        
     }
     private void Start()
     {
-        gameManager = new GameManager();
         spawner = GameObject.Find("GameArea").GetComponent<ChallengeSpawner>();
         AddNoteProperties();
     }
-    private void Update()
-    {
-        if (isPressed && gameManager.isPlaying)
-        {
-            Debug.Log("Pressed key: " + noteType);
-            HandleChallengeProgress();
-        }
-    }
     void OnAudioFilterRead(float[] data, int channels)
     {
-        double phaseIncrement = frequency / _sampleRate;
+        double phaseIncrement = generatedAudio.frequency / generatedAudio.sampleRate;
 
         for (int sample = 0; sample < data.Length; sample += channels) 
         {
-            float val = amplitude * Mathf.Sin((float)_phase * 2*Mathf.PI);
-            _phase = (_phase + phaseIncrement) % 1;
+            float val = generatedAudio.amplitude * Mathf.Sin((float)generatedAudio.phase * 2*Mathf.PI);
+            generatedAudio.phase = (generatedAudio.phase + phaseIncrement) % 1;
             for (int channel = 0; channel < channels; channel++)
             {
                 data[sample + channel] = val;
@@ -64,6 +52,8 @@ public class KeyNoteManager : MonoBehaviour
     public void PressedNote()
     {
         //note make sure the event trigger is OnPointerDown.
+        GameManager.ToggleXP(7);
+        MessageLog.LogMessage("Current Score: " + GameManager.totalXP.ToString());
         HandleNoteEventState(true, pressedColor, pressedKeyScale);
         audioSource.Play();
     }
@@ -96,76 +86,77 @@ public class KeyNoteManager : MonoBehaviour
         switch (noteType)
         {
             case "C4":
-                frequency = 261.626f;
+                generatedAudio.frequency = 261.626f;
                 break;
             case "C5":
-                frequency = 523.251f;
+                generatedAudio.frequency = 523.251f;
                 break;
             case "C6":
-                frequency = 1046.502f;
+                generatedAudio.frequency = 1046.502f;
                 break;
 
             case "D4":
-                frequency = 293.66f;
+                generatedAudio.frequency = 293.66f;
                 break;
             case "D5":
-                frequency = 587.33f;
+                generatedAudio.frequency = 587.33f;
                 break;
             case "D6":
-                frequency = 1174.66f;
+                generatedAudio.frequency = 1174.66f;
                 break;
 
             case "E4":
-                frequency = 329.63f;
+                generatedAudio.frequency = 329.63f;
                 break;
             case "E5":
-                frequency = 659.26f;
+                generatedAudio.frequency = 659.26f;
                 break;
             case "E6":
-                frequency = 1318.51f;
+                generatedAudio.frequency = 1318.51f;
                 break;
 
             case "F4":
-                frequency = 349.23f;
+                generatedAudio.frequency = 349.23f;
                 break;
             case "F5":
-                frequency = 698.46f;
+                generatedAudio.frequency = 698.46f;
                 break;
             case "F6":
-                frequency = 1396.91f;
+                generatedAudio.frequency = 1396.91f;
                 break;
 
             case "G4":
-                frequency = 392.00f;
+                generatedAudio.frequency = 392.00f;
                 break;
             case "G5":
-                frequency = 783.99f;
+                generatedAudio.frequency = 783.99f;
                 break;
             case "G6":
-                frequency = 1567.98f;
+                generatedAudio.frequency = 1567.98f;
                 break;
 
             case "A4":
-                frequency = 440f;
+                generatedAudio.frequency = 440f;
                 break;
             case "A5":
-                frequency = 880.00f;
+                generatedAudio.frequency = 880.00f;
                 break;
             case "A6":
-                frequency = 1760.00f;
+                generatedAudio.frequency = 1760.00f;
                 break;
 
             case "B4":
-                frequency = 493.88f;
+                generatedAudio.frequency = 493.88f;
                 break;
             case "B5":
-                frequency = 987.77f;
+                generatedAudio.frequency = 987.77f;
                 break;
             case "B6":
-                frequency = 1975.53f;
+                generatedAudio.frequency = 1975.53f;
                 break;
 
         }
+        currentFrequency = generatedAudio.frequency;
     }
 
     private void GenerateBlackNotePitch()
@@ -173,72 +164,56 @@ public class KeyNoteManager : MonoBehaviour
         switch (noteType)
         {
             case "C#4":
-                frequency = 277.18f;
+                generatedAudio.frequency = 277.18f;
                 break;
             case "C#5":
-                frequency = 554.37f;
+                generatedAudio.frequency = 554.37f;
                 break;
             case "C#6":
-                frequency = 1108.73f;
+                generatedAudio.frequency = 1108.73f;
 
                 break;
             case "D#4":
-                frequency = 311.13f;
+                generatedAudio.frequency = 311.13f;
                 break;
             case "D#5":
-                frequency = 622.25f;
+                generatedAudio.frequency = 622.25f;
                 break;
             case "D#6":
-                frequency = 1244.51f;
+                generatedAudio.frequency = 1244.51f;
                 break;
 
             case "F#4":
-                frequency = 369.99f;
+                generatedAudio.frequency = 369.99f;
                 break;
             case "F#5":
-                frequency = 739.99f;
+                generatedAudio.frequency = 739.99f;
                 break;
             case "F#6":
-                frequency = 1479.98f;
+                generatedAudio.frequency = 1479.98f;
                 break;
 
             case "G#4":
-                frequency = 415.30f;
+                generatedAudio.frequency = 415.30f;
                 break;
             case "G#5":
-                frequency = 830.61f;
+                generatedAudio.frequency = 830.61f;
                 break;
             case "G#6":
-                frequency = 1661.22f;
+                generatedAudio.frequency = 1661.22f;
                 break;
 
             case "A#4":
-                frequency = 466.16f;
+                generatedAudio.frequency = 466.16f;
                 break;
             case "A#5":
-                frequency = 932.33f;
+                generatedAudio.frequency = 932.33f;
                 break;
             case "A#6":
-                frequency = 1864.66f;
+                generatedAudio.frequency = 1864.66f;
                 break;
         }
-    }
-    private void HandleChallengeProgress()
-    {
-        if (noteType == spawner.randomNote.noteType)
-        {
-            LogSelection("Correct selection", 5);
-        }
-        else
-        {
-            LogSelection("Incorrect selection", -3);
-        }
-    }
-
-    public void LogSelection(string outputMessage, int totalPoints)
-    {
-        Debug.Log(outputMessage);
-        gameManager.totalXP += totalPoints;
+        currentFrequency = generatedAudio.frequency;
     }
 
 }

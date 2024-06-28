@@ -20,7 +20,6 @@ public class LoginManager : MonoBehaviour
     [SerializeField] private GameObject errorContainer;
 
     UserData progress;
-    GameManager gameManager;
     private void OnEnable()
     {
         continueButton.onClick.AddListener(LoadGameData);
@@ -40,8 +39,6 @@ public class LoginManager : MonoBehaviour
 
     private void Start()
     {
-        gameManager = new GameManager();
-
         progress = SaveData.LoadFromFile();
         errorContainer.SetActive(false);
     }
@@ -60,10 +57,10 @@ public class LoginManager : MonoBehaviour
         
         if (progress != null)
         {
-            gameManager.totalXP = progress.totalXP;
-            gameManager.username = progress.username;
-            gameManager.password = progress.password;
-            gameManager.gameMode = progress.gameMode;
+            GameManager.totalXP = progress.totalXP;
+            GameManager.username = progress.username;
+            GameManager.password = progress.password;
+            GameManager.gameMode = progress.gameMode;
 
             if (usernameInput.text == progress.username && passwordInput.text == progress.password)
             {
@@ -83,8 +80,8 @@ public class LoginManager : MonoBehaviour
     {
         if ( usernameInput.text != progress.username)
         {
-            gameManager.username = usernameInput.text;
-            gameManager.password = passwordInput.text;
+            GameManager.username = usernameInput.text;
+            GameManager.password = passwordInput.text;
             SaveData.SaveToFile();
             StartCoroutine(ShowErrorMessage("Created successfully, you can now continue"));
         }
