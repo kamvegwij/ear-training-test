@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,25 +9,37 @@ using static TreeEditor.TreeEditorHelper;
 [RequireComponent(typeof(AudioSource))]
 public class ChallengeSpawner : MonoBehaviour
 {
+    public QuestionGenerated[] questions;
+    public List<QuestionGenerated> unansweredQuestions;
+    public QuestionGenerated currentQuestion;
+
     [SerializeField] private Button tryButton;
+    [SerializeField] private Button reloadButton;
+    [SerializeField] private Button closeChallengeButton;
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI generatedSoundText;
     [SerializeField] private List<GameObject> pianoKeysList;
     [SerializeField] private GameObject testUI;
+    [SerializeField] private GameObject challengeChoiceMenu;
 
     private AudioSource audioSource;
 
     private float timerDuration = 5.0f;
     private bool testStarted = false;
+    private bool makingChoice = false;
 
     ProceduralAudio generatedAudio;
     private void OnEnable()
     {
-        tryButton.onClick.AddListener(StartTest);
+        tryButton.onClick.AddListener(BeginTraining);
+        reloadButton.onClick.AddListener(ReloadPage);
+        closeChallengeButton.onClick.AddListener(CloseChallenge);
     }
     private void OnDisable()
     {
         tryButton.onClick.RemoveAllListeners();
+        reloadButton.onClick.RemoveAllListeners();
+        closeChallengeButton.onClick.RemoveAllListeners(); 
     }
     private void Awake()
     {
@@ -40,46 +53,30 @@ public class ChallengeSpawner : MonoBehaviour
     private void Start()
     {
         testUI.SetActive(false);
+        LoadQuestions();
     }
     private void Update()
     {
         if (!testStarted)
+            return;
+
+        if (timerDuration > 0.0f)
         {
-            ToggleTestGameState(false, false, true);
+            timerDuration -= Time.deltaTime;
+            timerText.text = Mathf.RoundToInt(timerDuration).ToString() + "s";
         }
-        else
+        if (makingChoice)
         {
-            ToggleTestGameState(true, true, false);
-
-            if (timerDuration > 0.0f)
+            if (Input.GetKey(KeyCode.X))
             {
-                timerDuration -= Time.deltaTime;
-            }
-            else
-            {
-                audioSource.Stop();
-                testStarted = false;
-                MessageLog.LogMessage(GameManager.totalXP.ToString());
+                MessageLog.LogMessage("Correct selection");
+                //unansweredQuestions.Remove(currentQuestion);
+                makingChoice = false;
+                reloadButton.interactable = true;
+                closeChallengeButton.interactable = true;
             }
         }
-        timerText.text = Mathf.RoundToInt(timerDuration).ToString();
     }
-    private void ToggleTestGameState(bool testState, bool isPlaying, bool buttonInteract)
-    {
-        testUI.SetActive(testState);
-        GameManager.SetGamePlayingState(isPlaying);
-        tryButton.interactable = buttonInteract;
-    }
-    public KeyNoteManager GetRandomNote()
-    {
-        //return a piano note object.
-        int keyBoardLen = pianoKeysList.Count;
-        KeyNoteManager randomNote = pianoKeysList[Random.Range(0, keyBoardLen)].GetComponent<KeyNoteManager>();
-        generatedAudio.frequency = randomNote.currentFrequency;
-
-        return randomNote;
-    }
-
     void OnAudioFilterRead(float[] data, int channels)
     {
         double phaseIncrement = generatedAudio.frequency / generatedAudio.sampleRate;
@@ -94,19 +91,63 @@ public class ChallengeSpawner : MonoBehaviour
             }
         }
     }
+
+    public void SetCurrentQuestion()
+    {
+        if (unansweredQuestions.Count > 0)
+        {
+            int randQIndex = Random.Range(0, unansweredQuestions.Count);
+            currentQuestion = unansweredQuestions[randQIndex];
+
+            generatedAudio.frequency = currentQuestion.noteFrequency;
+        }
+    }
+    public void LoadQuestions()
+    {
+        if (unansweredQuestions == null || unansweredQuestions.Count == 0)
+        {
+            unansweredQuestions = questions.ToList<QuestionGenerated>();
+        }
+        SetCurrentQuestion();
+    }
+    private void BeginTraining()
+    {
+        challengeChoiceMenu.SetActive(false);
+        reloadButton.interactable = false;
+        closeChallengeButton.interactable = false;
+        StartCoroutine(StartChallenge());
+    }
     private void PlayChallengeAudio()
     {
-        generatedSoundText.text = GetRandomNote().noteType;
+        generatedSoundText.text = currentQuestion.noteType;
         audioSource.Play();
     }
-
-    private void StartTest()
+    private void ToggleTestGameState(bool testState, bool isPlaying, bool buttonInteract)
     {
-        if (testStarted) return;
-
+        testUI.SetActive(testState);
+        GameManager.SetGamePlayingState(isPlaying);
+        tryButton.interactable = buttonInteract;
+    }
+    private void MakeChoice()
+    {
+        challengeChoiceMenu.SetActive(true);
+        makingChoice = true;
+    }
+    private void ReloadPage()
+    {
+        LoadQuestions();
+        BeginTraining();
+    }
+    private void CloseChallenge()
+    {
+        testStarted = false;
+        ToggleTestGameState(false, false, true);
+    }
+    IEnumerator StartChallenge()
+    {
         timerDuration = 5.0f;
+        float _startTime = timerDuration;
         testStarted = true;
-
         switch (GameManager.gameMode)
         {
             case 0:
@@ -119,5 +160,10 @@ public class ChallengeSpawner : MonoBehaviour
                 PlayChallengeAudio();
                 break;
         }
+        ToggleTestGameState(true, true, false);
+
+        yield return new WaitForSeconds(_startTime);
+        audioSource.Stop();
+        MakeChoice();
     }
 }

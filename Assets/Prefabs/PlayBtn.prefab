@@ -158,6 +158,10 @@ PrefabInstance:
       value: 84.29
       objectReference: {fileID: 0}
     - target: {fileID: 1066314584182176137, guid: 9cd7ca141c825c144a3a1730f9641ad7, type: 3}
+      propertyPath: m_characterSpacing
+      value: 3.31
+      objectReference: {fileID: 0}
+    - target: {fileID: 1066314584182176137, guid: 9cd7ca141c825c144a3a1730f9641ad7, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4293519071
       objectReference: {fileID: 0}

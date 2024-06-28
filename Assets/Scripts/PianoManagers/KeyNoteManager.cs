@@ -7,6 +7,7 @@ public class KeyNoteManager : MonoBehaviour
     public string noteType;
     public string noteColor;
     public float currentFrequency;
+
     [SerializeField] private Color pressedColor;
     [SerializeField] private Color normalColor;
 
