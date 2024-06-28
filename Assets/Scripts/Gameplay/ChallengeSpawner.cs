@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static TreeEditor.TreeEditorHelper;
+using static UnityEditorInternal.VersionControl.ListControl;
 
 [RequireComponent(typeof(AudioSource))]
 public class ChallengeSpawner : MonoBehaviour
@@ -25,8 +26,8 @@ public class ChallengeSpawner : MonoBehaviour
     private AudioSource audioSource;
 
     private float timerDuration = 5.0f;
-    private bool testStarted = false;
-    private bool makingChoice = false;
+    [SerializeField] private bool testStarted = false;
+    [SerializeField] private bool makingChoice = false;
 
     ProceduralAudio generatedAudio;
     private void OnEnable()
@@ -98,7 +99,6 @@ public class ChallengeSpawner : MonoBehaviour
         {
             int randQIndex = Random.Range(0, unansweredQuestions.Count);
             currentQuestion = unansweredQuestions[randQIndex];
-
             generatedAudio.frequency = currentQuestion.noteFrequency;
         }
     }
@@ -145,8 +145,16 @@ public class ChallengeSpawner : MonoBehaviour
     }
     IEnumerator StartChallenge()
     {
-        timerDuration = 5.0f;
-        float _startTime = timerDuration;
+        float loadTime = 3.0f;
+        float durationTime = 5.0f;
+
+        timerDuration = durationTime;
+
+        ToggleTestGameState(true, false, false);
+        MessageLog.LogMessage("Not started");
+        yield return new WaitForSeconds(loadTime);
+
+        MessageLog.LogMessage("Started");
         testStarted = true;
         switch (GameManager.gameMode)
         {
@@ -162,7 +170,7 @@ public class ChallengeSpawner : MonoBehaviour
         }
         ToggleTestGameState(true, true, false);
 
-        yield return new WaitForSeconds(_startTime);
+        yield return new WaitForSeconds(durationTime);
         audioSource.Stop();
         MakeChoice();
     }
